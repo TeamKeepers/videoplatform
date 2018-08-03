@@ -8,7 +8,7 @@
 
     if($_POST) // if a form is sent in post
     {
-        debug($_POST);
+        // debug($_POST);
         // debug($_FILES);
 
         if(isset($_POST["inscription"])) // check every input of the 'inscription' form (first form of the page)
@@ -107,8 +107,6 @@
                     $copy_pic = $_FILES['photoprofil']['tmp_name'];
                 }
 
-                // debug($copy_pic);
-
                 if(!checkEmail($_POST['email'])) // We check if the email is already register in the database. Replace this line with your own DTB !
                 {
                     $msg .= "<div class='alert alert-danger'>Cet email est déjà lié à un compte, veuillez essayer de vous connecter ou utilisez une autre adresse email.</div>";
@@ -121,7 +119,7 @@
             }
         }
 
-        if($_POST["connexion"]) // check every input of the 'connexion' form (second form of the page)
+        if(isset($_POST["connexion"])) // check every input of the 'connexion' form (second form of the page)
         {
 
             if(isset($_POST['toujoursConnecte']) && !empty($_POST['toujoursConnecte']))

@@ -1,4 +1,8 @@
-<?php require_once('ini/init.php') ?>
+<?php 
+    require_once('ini/init.php'); 
+    require_once("inc/function.php");
+    require_once("inc/ini/function_dtb.php");
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -9,7 +13,7 @@
 
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <meta name="description" content="">
-        <meta name="author" content="">
+        <meta name="author" content="TeamKeepers - Guillaume">
         <link rel="icon" href="assets/img/globe.png">
 
         <title>Bienvenue</title>

@@ -35,3 +35,22 @@
   footer p {
     margin-bottom: .25rem;
   }
+
+  /* ***** Règles perso ***** */
+#welcomer {
+  background-image: url(../uploads/photo/luzern.jpg);
+  background-position:left top;
+  filter: brightness(80%);
+        -webkit-filter: brightness(80%);
+        -moz-filter: brightness(80%);
+        -o-filter: brightness(80%);
+        -ms-filter: brightness(80%);
+}
+#welcomer-text {
+  background: rgba(255,250,250, 0.7);
+  color:black;
+}
+
+.clickBoxes, .clickBoxes:hover {
+  text-decoration: none;
+}

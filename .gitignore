@@ -1,4 +1,5 @@
 inc/ini/
-uploads/photo
-uploads/photoprofil
-uploads/video
+uploads/photoprofil/
+back/uploads/photo/
+back/uploads/video/
+back/uploads/img/
