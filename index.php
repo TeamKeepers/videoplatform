@@ -1,20 +1,24 @@
 <?php
     require_once('inc/head.php');
 
-    if($_POST)
+    if(isset($_GET['msg']) && !empty($_GET['msg']) && $_GET['msg'] == "connect")
+    {
+        $msg .= "<div class='alert alert-danger'>Veuillez-vous connecter à la plateforme.</div>";
+    }
+
+    if($_POST) // if a form is sent in post
     {
         debug($_POST);
-        debug($_FILES);
+        // debug($_FILES);
 
-        if(isset($_POST["inscription"]))
+        if(isset($_POST["inscription"])) // check every input of the 'inscription' form (first form of the page)
         {
-            if(empty($_POST['prenom']) || empty($_POST['nom']))
+            if(empty($_POST['prenom']) || empty($_POST['nom'])) // check firstname & lastname
             {
                 $msg .= "<div class='alert alert-danger'>Veuillez rentrer un prénom et un nom valide.</div>";
             }
 
-            // check email
-            if (!empty($_POST['email'])) 
+            if (!empty($_POST['email'])) // check email
             {
                 $email_verif = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
 
@@ -37,10 +41,9 @@
                 $msg .= "<div class='alert alert-danger'>Veuillez rentrer un email valide.</div>";
             }
 
-            // check mot de passe
-            if(!empty($_POST['mdp']) && !empty($_POST['mdp2'])) 
+            if(!empty($_POST['mdp']) && !empty($_POST['mdp2'])) // check the password
             {
-                $verif_mdp = preg_match('#^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*\'\?$@%_])([-+!*\?$\'@%_\w]{6,30})$#', $_POST['mdp']);
+                $verif_mdp = preg_match('#^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*\'\?$@%_])([-+!*\?$\'@%_\w]{6,30})$#', $_POST['mdp']); // REGEX
 
                 if(!$verif_mdp)
                 {
@@ -58,12 +61,12 @@
                 $msg .= "<div class='alert alert-danger'>Veuillez rentrer un mot de passe valide et le confirmer.</div>";
             }
 
-            if(empty($_POST['famille']) && ($_POST['famille'] != "rc") || ($_POST['famille'] != "s"))
+            if(empty($_POST['famille']) || ($_POST['famille'] != ("rc" || "s")))
             {
                 $msg .= "<div class='alert alert-danger'>Veuillez choisir une des familles présentées.</div>";
             }
 
-            if(!empty($_FILES['photoprofil']['name'])) 
+            if(!empty($_FILES['photoprofil']['name'])) // We take care of the picture (give a unique name, size, type ...)
             {
                 $picture_name = $_POST['prenom'] . '-' . $_POST['nom'] . '_' . time() . '-' . rand(1,999) .  '_' . $_FILES['photoprofil']['name'];
 
@@ -86,13 +89,14 @@
                 }
 
             }
-            else
+            else // if no file, then we give a default image
             {
                 $picture_name = "default.jpg";
             }
 
-            if(empty($msg))
+            if(empty($msg)) // if no alert, then we register the infos
             {
+
                 if(!isset($picture_path) && empty($_FILES['photoprofil']['tmp_name']))
                 {
                     $picture_path = "";
@@ -103,13 +107,43 @@
                     $copy_pic = $_FILES['photoprofil']['tmp_name'];
                 }
 
-                debug($copy_pic);
+                // debug($copy_pic);
 
-                insertMember($_POST, $picture_name, $picture_path, $copy_pic);
+                if(!checkEmail($_POST['email'])) // We check if the email is already register in the database. Replace this line with your own DTB !
+                {
+                    $msg .= "<div class='alert alert-danger'>Cet email est déjà lié à un compte, veuillez essayer de vous connecter ou utilisez une autre adresse email.</div>";
+                }
+                else
+                {
+                    insertMember($_POST, $picture_name, $picture_path, $copy_pic); // replace this line with your own DTB !
+                }
+                
             }
+        }
+
+        if($_POST["connexion"]) // check every input of the 'connexion' form (second form of the page)
+        {
+
+            if(isset($_POST['toujoursConnecte']) && !empty($_POST['toujoursConnecte']))
+            {
+                $connected = $_POST['toujoursConnecte'];
+            }
+            else
+            {
+                $connected = '';
+            }
+
+            connectUser($_POST["email"], $_POST['mdp'], $connected);
         }
         
     }
+
+// Keep the values entered by the user if problem during the page reloading
+$prenom = (isset($_POST['prenom'])) ? $_POST['prenom'] : '';
+$nom = (isset($_POST['nom'])) ? $_POST['nom'] : '';
+$email = (isset($_POST['email'])) ? $_POST['email'] : '';
+$famille = (isset($_POST['famille'])) ? $_POST['famille'] : '';
+
 ?>
     
     <div class="text-center">
@@ -164,17 +198,17 @@
 
                     <div class="form-group">
                         <label for="prenom">Prénom</label>
-                        <input type="text" name="prenom" id="prenom" class="form-control" placeholder="Votre prénom" required>
+                        <input type="text" name="prenom" id="prenom" class="form-control" placeholder="Votre prénom" required value="<?= $prenom ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="nom">Nom</label>
-                        <input type="text" name="nom" id="nom" class="form-control" placeholder="Votre nom" required>
+                        <input type="text" name="nom" id="nom" class="form-control" placeholder="Votre nom" required value="<?= $nom ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="Adresse email" required autofocus>
+                        <input type="email" name="email" class="form-control" placeholder="Adresse email" required value="<?= $email ?>">
                     </div>
 
                     <div class="form-group">
@@ -193,9 +227,9 @@
                     <div class="form-group">
                         <label for="famille">Sélectionnez votre famille</label>
                         <select class="form-control" id="famille" name="famille">
-                            <option selected disabled>Sélectionner</option>
-                            <option value="rc">Robert-Casanova</option>
-                            <option value="s">Sarron</option>
+                            <option <?php if(empty($famille)){echo "selected";} ?> disabled>Sélectionner</option>
+                            <option value="rc" <?php if($famille == "rc"){echo "selected";}?>>Robert-Casanova</option>
+                            <option value="s" <?php if($famille == "s"){echo "selected";}?>>Sarron</option>
                         </select>
                     </div>
 
@@ -230,7 +264,7 @@
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Adresse email" required autofocus>
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Adresse email" required value="<?= $email ?>">
                     </div>
 
                     <div class="form-group">
